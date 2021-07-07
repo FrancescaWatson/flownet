@@ -66,6 +66,21 @@ def create_schema(config_folder: Optional[pathlib.Path] = None) -> Dict:
             "flownet": {
                 MK.Type: types.NamedDict,
                 MK.Content: {
+                    # Manual well connection input
+                    "well_network_connections": {
+                        MK.Type: types.List,
+                        MK.Content: {
+                            MK.Item: {
+                                MK.Type: types.List,
+                                MK.Content: {
+                                    MK.Item: {
+                                        MK.Type: types.Integer,
+                                        MK.AllowNone: True,
+                                    },
+                                },
+                            }
+                        },
+                    },
                     "data_source": {
                         MK.Type: types.NamedDict,
                         MK.Content: {

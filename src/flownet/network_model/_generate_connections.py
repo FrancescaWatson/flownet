@@ -263,6 +263,14 @@ def _generate_connections(
                 ),
                 conn_matrix,
             )
+
+    # Testing MRST network
+    well_conns: np.ndarray = np.zeros((len(well_perforations), len(well_perforations)))
+    ix_mrst_egg_pre = np.array(configuration.flownet.well_network_connections)
+    ix_mrst_egg_pre = ix_mrst_egg_pre-1
+    well_conns[ix_mrst_egg_pre[:,0],ix_mrst_egg_pre[:,1]] = 1
+    conn_matrix[0:len(well_perforations),0:len(well_perforations)] = well_conns
+
     print("done.")
 
     # Are there nodes in the connection matrix that has no connections? Definitely a problem
