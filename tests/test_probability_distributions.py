@@ -1,5 +1,6 @@
 from typing import List
 
+import numpy as np
 import pandas as pd
 
 
@@ -132,7 +133,7 @@ PD_LOOKUP = {
 
 DISTRIBUTION_DF = pd.DataFrame(DATA)
 # NaNs to None
-DISTRIBUTION_DF = DISTRIBUTION_DF.where(DISTRIBUTION_DF.notnull(), None)
+DISTRIBUTION_DF = DISTRIBUTION_DF.replace({np.nan: None})
 
 
 def test_probability_distributions() -> None:
@@ -142,6 +143,6 @@ def test_probability_distributions() -> None:
     ]
     for i in range(len(DATA.get("parameter"))):
         assert probdist[i].name.lower() == DATA["distribution"][i]
-        for var in {"minimum", "maximum", "mean", "base", "stddev"}:
+        for var in ["minimum", "maximum", "mean", "base", "stddev"]:
             if DATA[var][i] is not None:
                 assert getattr(probdist[i], PD_LOOKUP.get(var)) == DATA[var][i]

@@ -106,13 +106,13 @@ def create_observation_file(
         template = _TEMPLATE_ENVIRONMENT.get_template(
             f"observations.{obs_export_type}.jinja2"
         )
-        with open(export_filename, "w") as fh:
+        with open(export_filename, "w", encoding="utf8") as fh:
             fh.write(
                 template.render(
                     {
                         "dates": dates,
                         "schedule": schedule,
-                        "error_config": config.flownet.data_source.simulation.vectors,
+                        "error_config": config.flownet.data_source.vectors,
                         "num_beginning_date": setting[1],
                         "num_end_date": setting[2],
                         "last_training_date": dates[num_training_dates - 1],
@@ -136,7 +136,7 @@ def _create_ert_parameter_file(
         Nothing
 
     """
-    with open(output_folder / "parameters.ertparam", "w") as fh:
+    with open(output_folder / "parameters.ertparam", "w", encoding="utf8") as fh:
         index = 0  # Prepend index in parameter name to enforce uniqueness in ERT
         for parameter in parameters:
             for random_variable in parameter.random_variables:
@@ -146,7 +146,8 @@ def _create_ert_parameter_file(
 
     # This is an ERT workaround. ERT parameter configuration needs a template file
     # which we don't use. Call the template file "EMPTYFILE" and let be it empty.
-    open(output_folder / "EMPTYFILE", "a").close()
+    with open(output_folder / "EMPTYFILE", "a", encoding="utf8") as fh:
+        fh.close()
 
 
 def create_ert_setup(  # pylint: disable=too-many-arguments
@@ -229,7 +230,7 @@ def create_ert_setup(  # pylint: disable=too-many-arguments
             }
         )
 
-    with open(ert_config_file, "w") as fh:
+    with open(ert_config_file, "w", encoding="utf8") as fh:
         fh.write(template.render(configuration))
 
     shutil.copyfile(
@@ -269,7 +270,9 @@ def create_ert_setup(  # pylint: disable=too-many-arguments
     if hasattr(config.ert, "analysis"):
         for i, analysis_item in enumerate(config.ert.analysis):
             with open(
-                output_folder / f"SAVE_ITERATION_ANALYTICS_WORKFLOW_{i}", "w"
+                output_folder / f"SAVE_ITERATION_ANALYTICS_WORKFLOW_{i}",
+                "w",
+                encoding="utf8",
             ) as fh:
                 fh.write(
                     analytics_workflow_template.render(
@@ -292,7 +295,9 @@ def create_ert_setup(  # pylint: disable=too-many-arguments
                 )
 
     shutil.copyfile(args.config, output_folder / args.config.name)
-    with open(os.path.join(output_folder, "pipfreeze.output"), "w") as fh:
+    with open(
+        os.path.join(output_folder, "pipfreeze.output"), "w", encoding="utf8"
+    ) as fh:
         subprocess.call(["pip", "freeze"], stdout=fh)
 
     for section in ["RUNSPEC", "PROPS", "SOLUTION", "SCHEDULE"]:

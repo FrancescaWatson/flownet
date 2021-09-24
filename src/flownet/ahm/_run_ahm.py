@@ -26,7 +26,7 @@ from ..parameters import (
     FaultTransmissibility,
     Parameter,
 )
-from ..data import FlowData
+from ..data import FlowData, CSVData
 
 
 def _set_up_ahm_and_run_ert(
@@ -412,7 +412,7 @@ def update_distribution(
             if count_index == 1:
                 parameter.names = names
                 parameter.mean_values = random_samples
-                parameter.stddev_values = np.power(random_samples, 2)
+                parameter.stddev_values = np.power(random_samples, 2).tolist()
             else:
                 parameter.mean_values = list(
                     map(add, parameter.mean_values, random_samples)
@@ -431,7 +431,7 @@ def update_distribution(
                 value / float(df.shape[0]) - np.power(parameter.mean_values, 2)[i]
                 for i, value in enumerate(parameter.stddev_values)
             ]
-        )
+        ).tolist()
 
     # update the distributions
     for parameter in parameters:
@@ -542,6 +542,9 @@ def run_flownet_history_matching(
         layers=config.flownet.data_source.simulation.layers,
     )
     df_production_data: pd.DataFrame = field_data.production
+    if config.flownet.data_source.database.input_data:
+        csv_data = CSVData(config.flownet.data_source.database.input_data)
+        df_production_data = csv_data.production
     df_well_connections: pd.DataFrame = field_data.get_well_connections(
         config.flownet.perforation_handling_strategy
     )
@@ -675,7 +678,7 @@ def run_flownet_history_matching(
         if not all(value is None for _, value in values.items()):
             relperm_dict[key] = values
 
-    relperm_parameters = {key: relperm_dict[key] for key in relperm_dict}
+    relperm_parameters = relperm_dict
 
     relperm_interp_values: Optional[pd.DataFrame] = (
         pd.DataFrame(columns=list(relperm_parameters.keys()) + ["CASE", "SATNUM"])
@@ -849,7 +852,7 @@ def run_flownet_history_matching(
 
     regional_parameters = [
         param
-        for param in {"bulkvolume_mult", "porosity", "permeability"}
+        for param in ["bulkvolume_mult", "porosity", "permeability"]
         if getattr(config.model_parameters, param + "_regional_scheme") != "individual"
     ]
     (ci2ri, regional_porv_poro_trans_dist_values,) = _get_regional_distribution(

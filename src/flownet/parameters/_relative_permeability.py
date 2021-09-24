@@ -74,7 +74,9 @@ def sgof_from_parameters(parameters: Dict) -> str:
 
     # array of gas saturations to calculate krog and krg for
     sg = np.sort(
-        np.append(np.arange(sgcr, 1 - swl, H_CONSTANT), [1 - sorg - swl, 1 - swl, 0])
+        np.append(
+            np.arange(sgcr, 1 - swl - sorg, H_CONSTANT), [1 - sorg - swl, 1 - swl, 0]
+        )
     )
     # remove potential duplicate values
     sg = sg[~(np.triu(np.abs(sg[:, None] - sg) <= 1e-5, 1)).any(0)]
@@ -120,7 +122,7 @@ def interpolate_wo(parameter: float, scalrec: Dict) -> Dict:
     parameter = abs(parameter)
 
     parameter_dict = {}
-    for elem in {"swirr", "swl", "swcr", "sorw", "nw", "now", "krwend", "kroend"}:
+    for elem in ["swirr", "swl", "swcr", "sorw", "nw", "now", "krwend", "kroend"]:
         parameter_dict[elem] = (
             scalrec[elem][i] * (1 - parameter) + scalrec[elem][j] * parameter
         )
@@ -151,7 +153,7 @@ def interpolate_go(parameter: float, scalrec: Dict) -> Dict:
     parameter = abs(parameter)
 
     parameter_dict = {}
-    for elem in {"swirr", "swl", "sgcr", "sorg", "ng", "nog", "krgend", "kroend"}:
+    for elem in ["swirr", "swl", "sgcr", "sorg", "ng", "nog", "krgend", "kroend"]:
         parameter_dict[elem] = (
             scalrec[elem][i] * (1 - parameter) + scalrec[elem][j] * parameter
         )
